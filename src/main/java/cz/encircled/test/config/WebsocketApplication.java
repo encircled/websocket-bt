@@ -1,5 +1,6 @@
 package cz.encircled.test.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationEvent;
@@ -30,6 +31,9 @@ import org.springframework.session.config.annotation.web.http.EnableSpringHttpSe
 @EnableIntegration
 public class WebsocketApplication {
 
+    @Value("${activemq.url}")
+    private String activemqUrl;
+
     public static void main(String[] args) {
         SpringApplication.run(WebsocketApplication.class, args);
     }
@@ -41,7 +45,7 @@ public class WebsocketApplication {
 
     @Bean
     public Reactor2TcpStompClient stompClient() {
-        Reactor2TcpStompClient stompClient = new Reactor2TcpStompClient("127.0.0.1", 61613);
+        Reactor2TcpStompClient stompClient = new Reactor2TcpStompClient(activemqUrl, 61613);
         stompClient.setMessageConverter(new PassThruMessageConverter());
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
         taskScheduler.afterPropertiesSet();

@@ -31,14 +31,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .and()
                 .logout()
-                .logoutSuccessUrl("/login.html?logout")
-                .logoutUrl("/logout.html")
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login.html")
                 .permitAll()
                 .and()
                 .authorizeRequests()
                 .antMatchers("/js*//**").permitAll()
-                .anyRequest().authenticated()
-                .and();
+                .antMatchers("/css*//**").permitAll()
+                .anyRequest().authenticated();
     }
 
 
@@ -46,8 +46,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
                 .inMemoryAuthentication()
-                .withUser("user").password("user").roles("USER").and()
-                .withUser("admin").password("admin").roles("ADMIN", "USER");
+                .withUser("guest").password("guest").roles("GUEST").and()
+                .withUser("user").password("user").roles("GUEST", "USER").and()
+                .withUser("admin").password("admin").roles("GUEST", "ADMIN", "USER");
+
+        for (int i = 0; i < 1000; i++) {
+            auth.inMemoryAuthentication().withUser("admin" + i).password("admin").roles("GUEST", "ADMIN", "USER");
+        }
+
     }
 
 }

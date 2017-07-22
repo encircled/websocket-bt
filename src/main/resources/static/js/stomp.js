@@ -251,11 +251,6 @@
       if (typeof this.debug === "function") {
         this.debug("Opening Web Socket...");
       }
-      this.ws.onerror = (function(_this) {
-        return function(evt) {
-          return console.log(evt);
-        };
-      })(this);
       this.ws.onmessage = (function(_this) {
         return function(evt) {
           var arr, c, client, data, frame, j, len1, messageID, onreceive, ref, results, subscription, unmarshalledData;

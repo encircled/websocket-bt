@@ -10,7 +10,7 @@ public class Bid implements Comparable<Bid> {
 
     private BigDecimal amount;
 
-    private Customer customer;
+    private String customerName;
 
     private Date bidDate;
 
@@ -22,12 +22,12 @@ public class Bid implements Comparable<Bid> {
         this.amount = amount;
     }
 
-    public Customer getCustomer() {
-        return customer;
+    public String getCustomerName() {
+        return customerName;
     }
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
     }
 
     public Date getBidDate() {

@@ -1,29 +1,32 @@
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <script type="application/javascript" src="js/sockjs.min.js"></script>
-    <script type="application/javascript" src="js/stomp.min.js"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="container">
-    <!--
-    <div data-bind="visible: showErrorMessage" class="alert alert-error">
-      Invalid username/password.
+    <div class="row">
+        <div class="col-sm-4 mt-2">
+            <form method="post" action="login.html">
+                <h3 class="muted form-signin-heading">Please sign in</h3>
+
+                    <input type="text" class="form-control" placeholder="User name" name="username">
+                    <input type="password" class="form-control mt-2" placeholder="Password" name="password">
+                    <button class="btn btn-primary mt-3" type="submit">Sign in</button>
+
+                <hr>
+                <p class="text-info">
+                    <small>Log in as <strong>guest/guest</strong> or <strong>user/user</strong> or <strong>admin/admin</strong></small>
+                </p>
+                <input type="hidden"
+                       name="${_csrf.parameterName}"
+                       value="${_csrf.token}"/>
+            </form>
+        </div>
     </div>
-    -->
-    <form class="form-signin" method="post" action="login.html">
-        <h3 class="muted form-signin-heading">Please sign in</h3>
-        <input type="text" class="input-block-level" placeholder="User name" name="username">
-        <input type="password" class="input-block-level" placeholder="Password" name="password">
-        <button class="btn btn-primary" type="submit">Sign in</button>
-        <hr>
-        <p class="text-info">
-            <small>Log in as <strong>user/user</strong> or <strong>admin/admin</strong></small>
-        </p>
-        <input type="hidden"
-               name="${_csrf.parameterName}"
-               value="${_csrf.token}"/>
-    </form>
 </div>
 </body>
+<script src="js/jquery-3.1.1.min.js"></script>
+<script src="js/tether.min.js"></script>
+<script src="js/bootstrap.js"></script>
 </html>

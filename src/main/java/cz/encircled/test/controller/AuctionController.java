@@ -1,17 +1,20 @@
 package cz.encircled.test.controller;
 
-import cz.encircled.test.model.AuctionItem;
-import cz.encircled.test.model.SearchRequest;
+import cz.encircled.test.model.*;
 import cz.encircled.test.service.AuctionService;
+import cz.encircled.test.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.annotation.SendToUser;
-import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.security.Principal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -23,16 +26,58 @@ public class AuctionController {
     @Autowired
     private AuctionService auctionService;
 
-    @SubscribeMapping("/dashboard")
+    @Autowired
+    private CustomerService customerService;
+
+    @MessageMapping("/dashboard")
+    @SendToUser("/queue/dashboard")
     public List<AuctionItem> dashboard(Principal principal) {
         return auctionService.dashboard(principal);
     }
 
-
     @MessageMapping("/search")
-    @SendTo("/queue/search")
+    @SendToUser("/queue/search")
     public List<AuctionItem> search(SearchRequest searchRequest, Principal principal) {
-        return auctionService.dashboard(principal).subList(0, 1);
+        return auctionService.search(searchRequest, principal);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/searchAjax", method = RequestMethod.GET)
+    public List<AuctionItem> searchAjax(@RequestParam String category, @RequestParam String needle, Principal principal) {
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.setCategory(category);
+        searchRequest.setNeedle(needle);
+        return auctionService.search(searchRequest, principal);
+    }
+
+    @MessageMapping("/auction")
+    @SendToUser("/queue/auction")
+    public AuctionItem detail(Long id, Principal principal) {
+        return auctionService.detail(id, principal);
+    }
+
+    @MessageMapping("/auction/order")
+    @SendToUser("/queue/auction/order")
+    public Order placeOrder(Long id, Principal principal) {
+        AuctionItem item = auctionService.detail(id, principal);
+        if (item.isNotSold()) {
+            item.setSold(true);
+            Order order = new Order();
+            order.setAmount(item.getBuyNowPrice());
+            order.setAuctionItem(item);
+            order.setOrderDate(new Date());
+            Customer customer = customerService.getCustomer(principal.getName());
+            customer.getOrders().add(order);
+
+            return order;
+        } else {
+            throw new IllegalStateException("This item is already sold...");
+        }
+    }
+
+    @MessageMapping("/auction/bid")
+    public void placeBid(BidRequest request, Principal principal) {
+        auctionService.placeBid(request, customerService.getCustomer(principal.getName()));
     }
 
     @MessageExceptionHandler

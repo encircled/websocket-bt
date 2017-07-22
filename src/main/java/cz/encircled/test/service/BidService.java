@@ -20,20 +20,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Vlad on 19-Feb-17.
  */
 @Service
-public class AutoBidService implements ApplicationListener<BrokerAvailabilityEvent> {
+public class BidService implements ApplicationListener<BrokerAvailabilityEvent> {
 
     @Autowired
     private CustomerService customerService;
 
-    private final SimpMessageSendingOperations messagingTemplate;
-
-    private AtomicBoolean brokerAvailable = new AtomicBoolean();
-
     @Autowired
     private AuctionService auctionService;
 
+    private final SimpMessageSendingOperations messagingTemplate;
+
+    private final AtomicBoolean brokerAvailable = new AtomicBoolean();
+
+    private Boolean autoBidsEnabled = true;
+
     @Autowired
-    public AutoBidService(SimpMessageSendingOperations messagingTemplate) {
+    public BidService(SimpMessageSendingOperations messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
     }
 
@@ -47,7 +49,7 @@ public class AutoBidService implements ApplicationListener<BrokerAvailabilityEve
         if (this.brokerAvailable.get()) {
             auctionService.getAllAuctions().stream().filter(AuctionItem::isNotSold).forEach(a -> {
                 Date now = new Date();
-                if(a.getFinishDate().before(now)) {
+                if (a.getFinishDate().before(now)) {
                     a.setSold(true);
                     Bid wonBid = a.getBids().last();
                     Customer customer = customerService.getCustomer(wonBid.getCustomerName());
@@ -59,17 +61,16 @@ public class AutoBidService implements ApplicationListener<BrokerAvailabilityEve
 
                     customer.getOrders().add(order);
                 }
-//                this.messagingTemplate.convertAndSend("/topic/auction/" + a.getId(), a.getBids());
             });
         }
     }
 
-    @Scheduled(fixedDelay = 10000)
-    public void sendQuotes() {
-        if (this.brokerAvailable.get()) {
+    @Scheduled(fixedDelay = 30 * 1000)
+    public void autoBids() {
+        if (this.brokerAvailable.get() && autoBidsEnabled) {
             auctionService.getAllAuctions().stream().filter(AuctionItem::isNotSold).forEach(a -> {
                 Bid bid = new Bid();
-                bid.setCustomerName("admin");
+                bid.setCustomerName(CustomerService.AI_CUSTOMER);
                 bid.setBidDate(new Date());
                 if (a.getBids().isEmpty()) {
                     bid.setAmount(BigDecimal.ONE);
@@ -78,8 +79,22 @@ public class AutoBidService implements ApplicationListener<BrokerAvailabilityEve
                 }
                 a.getBids().add(bid);
 
-                this.messagingTemplate.convertAndSend("/topic/auction/" + a.getId(), a.getBids());
+                sendBids(a);
             });
+        }
+    }
+
+    public Boolean getAutoBidsEnabled() {
+        return autoBidsEnabled;
+    }
+
+    public void setAutoBidsEnabled(Boolean autoBidsEnabled) {
+        this.autoBidsEnabled = autoBidsEnabled;
+    }
+
+    public void sendBids(AuctionItem a) {
+        if (this.brokerAvailable.get()) {
+            this.messagingTemplate.convertAndSend("/topic/auction/" + a.getId(), a.getBids());
         }
     }
 }

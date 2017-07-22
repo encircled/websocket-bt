@@ -1,6 +1,8 @@
 package cz.encircled.test.model;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.TreeSet;
 
 /**
@@ -8,19 +10,25 @@ import java.util.TreeSet;
  */
 public class AuctionItem {
 
-    private Long id;
+    private Date finishDate;
 
-    private BigDecimal minBid;
+    private String finishDateFormatted;
+
+    private Long id;
 
     private TreeSet<Bid> bids = new TreeSet<>();
 
     private String name;
+
+    private String description;
 
     private Boolean buyNow = false;
 
     private BigDecimal buyNowPrice;
 
     private String[] imageNames;
+
+    private volatile boolean isSold;
 
     public Long getId() {
         return id;
@@ -62,6 +70,14 @@ public class AuctionItem {
         this.buyNow = buyNow;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public BigDecimal getBuyNowPrice() {
         return buyNowPrice;
     }
@@ -69,5 +85,51 @@ public class AuctionItem {
     public void setBuyNowPrice(BigDecimal buyNowPrice) {
         this.buyNow = true;
         this.buyNowPrice = buyNowPrice;
+    }
+
+    public boolean isNotSold() {
+        return !isSold;
+    }
+
+    public boolean isSold() {
+        return isSold;
+    }
+
+    public void setSold(boolean sold) {
+        isSold = sold;
+    }
+
+    public Date getFinishDate() {
+        return finishDate;
+    }
+
+    public void setFinishDate(Date finishDate) {
+        if(finishDate != null) {
+            setFinishDateFormatted(new SimpleDateFormat("dd.MM.yyyy hh:mm:ss").format(finishDate));
+        }
+        this.finishDate = finishDate;
+    }
+
+    public String getFinishDateFormatted() {
+        return finishDateFormatted;
+    }
+
+    public void setFinishDateFormatted(String finishDateFormatted) {
+        this.finishDateFormatted = finishDateFormatted;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AuctionItem that = (AuctionItem) o;
+
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }

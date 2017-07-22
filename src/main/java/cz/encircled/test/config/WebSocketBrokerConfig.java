@@ -1,5 +1,6 @@
 package cz.encircled.test.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -17,16 +18,19 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @ComponentScan({"cz.encircled.test.service", "cz.encircled.test.controller"})
 public class WebSocketBrokerConfig extends AbstractWebSocketMessageBrokerConfigurer implements WebSocketMessageBrokerConfigurer {
 
+    @Value("${activemq.url}")
+    private String activemqUrl;
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/auction").withSockJS();
+        registry.addEndpoint("/auction").withSockJS().setWebSocketEnabled(true);
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/app");
         StompBrokerRelayRegistration relay = registry.enableStompBrokerRelay("/topic", "/queue");
-
+        relay.setRelayHost(activemqUrl);
     }
 
 }
