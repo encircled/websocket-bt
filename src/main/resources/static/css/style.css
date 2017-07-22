@@ -1,0 +1,24 @@
+@media (min-width: 576px) {
+
+    div.col-sm-4.auction-preview-wrap {
+        min-width: 370px;
+        cursor: pointer;
+    }
+
+    .card-deck {
+        padding: 10px 0;
+    }
+
+}
+
+@media (min-width: 768px) {
+
+}
+
+@media (min-width: 992px) {
+
+}
+
+@media (min-width: 1200px) {
+
+}
