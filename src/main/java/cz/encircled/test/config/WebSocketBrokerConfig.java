@@ -21,9 +21,12 @@ public class WebSocketBrokerConfig extends AbstractWebSocketMessageBrokerConfigu
     @Value("${activemq.url}")
     private String activemqUrl;
 
+    @Value("${activemq.port:61613}")
+    private Integer activemqPort;
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/auction").withSockJS().setWebSocketEnabled(true);
+        registry.addEndpoint("/auction").withSockJS();
     }
 
     @Override
@@ -31,6 +34,7 @@ public class WebSocketBrokerConfig extends AbstractWebSocketMessageBrokerConfigu
         registry.setApplicationDestinationPrefixes("/app");
         StompBrokerRelayRegistration relay = registry.enableStompBrokerRelay("/topic", "/queue");
         relay.setRelayHost(activemqUrl);
+        relay.setRelayPort(activemqPort);
     }
 
 }

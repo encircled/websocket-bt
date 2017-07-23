@@ -34,6 +34,9 @@ public class WebsocketApplication {
     @Value("${activemq.url}")
     private String activemqUrl;
 
+    @Value("${activemq.port:61613}")
+    private Integer activemqPort;
+
     public static void main(String[] args) {
         SpringApplication.run(WebsocketApplication.class, args);
     }
@@ -45,7 +48,7 @@ public class WebsocketApplication {
 
     @Bean
     public Reactor2TcpStompClient stompClient() {
-        Reactor2TcpStompClient stompClient = new Reactor2TcpStompClient(activemqUrl, 61613);
+        Reactor2TcpStompClient stompClient = new Reactor2TcpStompClient(activemqUrl, activemqPort);
         stompClient.setMessageConverter(new PassThruMessageConverter());
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
         taskScheduler.afterPropertiesSet();
