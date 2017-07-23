@@ -5,17 +5,7 @@ package cz.encircled.test.model;
  */
 public class SearchRequest {
 
-    private String category;
-
     private String needle;
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
 
     public String getNeedle() {
         return needle;

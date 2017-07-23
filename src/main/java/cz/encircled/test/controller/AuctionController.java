@@ -43,23 +43,22 @@ public class AuctionController {
 
     @ResponseBody
     @RequestMapping(value = "/searchAjax", method = RequestMethod.GET)
-    public List<AuctionItem> searchAjax(@RequestParam String category, @RequestParam String needle, Principal principal) {
+    public List<AuctionItem> searchAjax(@RequestParam String needle, Principal principal) {
         SearchRequest searchRequest = new SearchRequest();
-        searchRequest.setCategory(category);
         searchRequest.setNeedle(needle);
         return auctionService.search(searchRequest, principal);
     }
 
     @MessageMapping("/auction")
     @SendToUser("/queue/auction")
-    public AuctionItem detail(Long id, Principal principal) {
-        return auctionService.detail(id, principal);
+    public AuctionItem detail(Long id) {
+        return auctionService.detail(id);
     }
 
     @MessageMapping("/auction/order")
     @SendToUser("/queue/auction/order")
     public Order placeOrder(Long id, Principal principal) {
-        AuctionItem item = auctionService.detail(id, principal);
+        AuctionItem item = auctionService.detail(id);
         if (item.isNotSold()) {
             item.setSold(true);
             Order order = new Order();

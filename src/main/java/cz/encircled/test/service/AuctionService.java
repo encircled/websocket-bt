@@ -94,14 +94,6 @@ public class AuctionService {
                 .collect(Collectors.toList());
     }
 
-    private String getUserCode(Principal principal) {
-        return getUserCode(principal.getName());
-    }
-
-    private String getUserCode(String name) {
-        return name.substring(0, 4);
-    }
-
     public List<AuctionItem> search(SearchRequest request, Principal principal) {
         String needle = request.getNeedle().trim().toLowerCase();
 
@@ -110,7 +102,7 @@ public class AuctionService {
                 .collect(Collectors.toList());
     }
 
-    public AuctionItem detail(Long id, Principal principal) {
+    public AuctionItem detail(Long id) {
         return auctions.stream()
                 .filter(i -> i.getId().equals(id))
                 .findFirst().orElse(null);

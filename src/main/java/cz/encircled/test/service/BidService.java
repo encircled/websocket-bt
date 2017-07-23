@@ -44,8 +44,11 @@ public class BidService implements ApplicationListener<BrokerAvailabilityEvent> 
         this.brokerAvailable.set(event.isBrokerAvailable());
     }
 
+    /**
+     * Job for checking finished auctions and creating an Order for a winner customer
+     */
     @Scheduled(fixedDelay = 1000)
-    public void completeAuctions() {
+    public void checkCompletedAuctions() {
         if (this.brokerAvailable.get()) {
             auctionService.getAllAuctions().stream().filter(AuctionItem::isNotSold).forEach(a -> {
                 Date now = new Date();
@@ -54,17 +57,15 @@ public class BidService implements ApplicationListener<BrokerAvailabilityEvent> 
                     Bid wonBid = a.getBids().last();
                     Customer customer = customerService.getCustomer(wonBid.getCustomerName());
 
-                    Order order = new Order();
-                    order.setOrderDate(now);
-                    order.setAmount(wonBid.getAmount());
-                    order.setAuctionItem(a);
-
-                    customer.getOrders().add(order);
+                    createOrderForWinner(a, now, wonBid, customer);
                 }
             });
         }
     }
 
+    /**
+     * Job for automatic system bids
+     */
     @Scheduled(fixedDelay = 30 * 1000)
     public void autoBids() {
         if (this.brokerAvailable.get() && autoBidsEnabled) {
@@ -82,6 +83,15 @@ public class BidService implements ApplicationListener<BrokerAvailabilityEvent> 
                 sendBids(a);
             });
         }
+    }
+
+    private void createOrderForWinner(AuctionItem a, Date now, Bid wonBid, Customer customer) {
+        Order order = new Order();
+        order.setOrderDate(now);
+        order.setAmount(wonBid.getAmount());
+        order.setAuctionItem(a);
+
+        customer.getOrders().add(order);
     }
 
     public Boolean getAutoBidsEnabled() {
