@@ -24,9 +24,12 @@ public class WebSocketBrokerConfig extends AbstractWebSocketMessageBrokerConfigu
     @Value("${activemq.port:61613}")
     private Integer activemqPort;
 
+    @Value("${use.ws:true}")
+    private Boolean useWebSockets;
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/auction").withSockJS();
+        registry.addEndpoint("/auction").withSockJS().setWebSocketEnabled(useWebSockets);
     }
 
     @Override
